@@ -31,7 +31,7 @@ app.get("/api/v1/ccxc/randomusers", (req, res) => {
     });
 });
 
-app.get("/api/v1/ccxc/swapiships", async (req, res) => {
+app.get("/api/v1/ccxc/ships", async (req, res) => {
   if (req.query.passengers) {
     res.status(200).json({
       ship_name: await gettingShips(parseInt(req.query.passengers)),

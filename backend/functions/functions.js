@@ -72,7 +72,7 @@ const countingLetters = (parameter) => {
   };
 };
 
-const checkingIfShipInEpisode = (list) => {
+const checkingIfShipInEpisode = (list,passangers) => {
   let episodes = [
     "http://swapi.dev/api/films/4/",
     "http://swapi.dev/api/films/5/",
@@ -80,76 +80,21 @@ const checkingIfShipInEpisode = (list) => {
   ];
   let flag = false;
 
-  list.forEach((element) => {
+  list.films.forEach((element) => {
     episodes.forEach((secondElement) => {
-      if (element === secondElement) {
+      if (element === secondElement ) {
         flag = true;
       }
     });
   });
+  if(!(list.passengers > passangers)) {
+    flag = false
+  }
   return flag;
 };
 
-const gettingShips = async (passengers) => {
-  let myUrl = "http://swapi.dev/api/starships";
-  x = false;
-  let response;
-  let results = [];
-  let ship = [];
-  do {
-    response = await axios.get(myUrl);
-    if (response.status === 200) {
-      response.data.results.forEach((element) => {
-        if (checkingIfShipInEpisode(element.films)) {
-          results.push(element);
-        }
-      });
-      if (response.data.next !== null) {
-        myUrl = response.data.next;
-      } else {
-        x = true;
-      }
-    }
-  } while (x === false);
-  results = results.map((element) => {
-    if (
-      element.passengers >= passengers &&
-      element.MGLT !== "unknown" &&
-      element.consumables !== "unknown"
-    ) {
-      if (element.consumables.includes("days")) {
-        const regExp = /\d+/g;
-        if (parseInt(element.consumables.match(regExp)) >= 7) {
-          return element;
-        }
-      } else {
-        return element;
-      }
-    }
-  });
-  results.forEach((element) => {
-    if (element !== undefined) {
-      ship.push(element);
-    }
-  });
-  if (ship.length > 1) {
-    let auxiliar = { value: 0, index: 0 };
-    ship.forEach((element, index) => {
-      if (parseInt(element.MGLT) > auxiliar.value) {
-        auxiliar.value = parseInt(element.MGLT);
-        auxiliar.index = index;
-      }
-    });
-    return ship[auxiliar.index].name;
-  } else if (ship.length === 1) {
-    return ship[0].name;
-  } else {
-    return "";
-  }
-};
-
 const terrainValidator = (element, terrain) => {
-  const comparators = element.split(", ");
+  const comparators = element.terrain.split(", ");
   let flag = false;
   comparators.forEach((element) => {
     if (element === terrain) {
@@ -168,7 +113,7 @@ const lookingThroughPages = async (url, validator, query) => {
     response = await axios.get(myUrl);
     if (response.status === 200) {
       response.data.results.forEach((element) => {
-        if (validator(element.terrain, query)) {
+        if (validator(element, query)) {
           results.push(element);
         }
       });
@@ -182,26 +127,56 @@ const lookingThroughPages = async (url, validator, query) => {
   return results;
 };
 
+const returningAnswer = (what,how) => {
+  if (what.length > 1) {
+    let auxiliar = { value: 0, index: 0 };
+    what.forEach((element, index) => {
+      if (parseInt(element[how]) > auxiliar.value) {
+        auxiliar.value = parseInt(element[how]);
+        auxiliar.index = index;
+      }
+    });
+    return what[auxiliar.index].name;
+  } else if (what.length === 1) {
+    return what[0].name;
+  } else {
+    return "";
+  }
+}
+
+const gettingShips = async (passengers) => {
+  let ship = []
+  let results = await lookingThroughPages("http://swapi.dev/api/starships", checkingIfShipInEpisode, passengers)
+  results = results.map((element) => {
+    if (
+      element.MGLT !== "unknown" &&
+      element.consumables !== "unknown"
+    ) {
+      if (element.consumables.includes("days")) {
+        const regExp = /\d+/g;
+        if (parseInt(element.consumables.match(regExp)) >= 7) {
+          return element;
+        }
+      } else {
+        return element;
+      }
+    }
+  });
+  results.forEach((element) => {
+    if (element !== undefined) {
+      ship.push(element);
+    }
+  });
+  return returningAnswer(ship, 'MGLT')
+};
+
 const findingPlanet = async (terrain) => {
   let planets = await lookingThroughPages(
     "http://swapi.dev/api/planets",
     terrainValidator,
     terrain
   );
-  if (planets.length === 1) {
-    return planets[0].name;
-  } else if (planets.length > 1) {
-    let auxiliarPlanet = { value: 0, index: 0 };
-    planets.forEach((element, index) => {
-      if (parseInt(element.population) > auxiliarPlanet.value) {
-        auxiliarPlanet.value = parseInt(element.population);
-        auxiliarPlanet.index = index;
-      }
-    });
-    return planets[auxiliarPlanet.index].name;
-  } else {
-    return "";
-  }
+  return returningAnswer(planets,'population')
 };
 module.exports = {
   buildingPersonsList,
