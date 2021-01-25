@@ -33,11 +33,11 @@ Se usó NodeJS para construir esta aplicación, todos los llamados son comunes e
     "planet_name": string
  }
  
- 
+ Como comentario general sobre el backend quisiera resaltar la intermitencia de la API randomusers que algunas veces retorna error de servidor.
  
  # Frontend
  
- La aplicación se compone de un componente "padre" donde son llamados los componentes que se encargaran de hacer los requests al backend y renderizar cada seccion. Una vez obtenida la informacion, los componentes llaman a un componente hijo comun donde se muestra la informacion obtenida del backend.
+ La aplicación fue hecha usando ReactJS y se uso BOOTSTRAP para los estilos. Se compone de un componente "padre" donde son llamados los componentes que se encargaran de hacer los requests al backend y renderizar cada seccion. Una vez obtenida la informacion, los componentes llaman a un componente hijo comun donde se muestra la informacion obtenida del backend.
  
  Los errores o validaciones de la informacion ingresada se hace por medio de alerts.
  
