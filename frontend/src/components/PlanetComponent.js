@@ -10,7 +10,7 @@ function PlanetComponent() {
   }
   function onSubmitEvent(e) {
     e.preventDefault();
-    if (value.value.match(/^\d+$/g) == null) {
+    if (value.value.match(/\d+/g) == null) {
       axios
         .get(
           `http://localhost:3010/api/v1/ccxc/planets?terrain=${value.value}`

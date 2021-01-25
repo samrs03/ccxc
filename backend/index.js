@@ -32,26 +32,26 @@ app.get("/api/v1/ccxc/randomusers", (req, res) => {
 });
 
 app.get("/api/v1/ccxc/ships", async (req, res) => {
-  if (req.query.passengers) {
+  if (req.query.passengers && req.query.passengers.match(/^\d+$/g)) {
     res.status(200).json({
       ship_name: await gettingShips(parseInt(req.query.passengers)),
     });
   } else {
     res.status(400).json({
       status: 400,
-      statusText: "Not Passanger number specified",
+      statusText: "The passenger information is not entered or not a number.",
     });
   }
 });
 
 app.get("/api/v1/ccxc/planets", async (req, res) => {
-    if(req.query.terrain) {
+    if(req.query.terrain && !req.query.terrain.match(/\d+/g)) {
         res.status(200).json({
             planet_name: await findingPlanet(req.query.terrain)
         })
     } else { res.status(400).json({
         status: 400,
-        statusText: 'Terrain parameter messing'
+        statusText: 'Terrain parameter missing or wrong'
     })}
 });
 app.listen(config.port, () => {
